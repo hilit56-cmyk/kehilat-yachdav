@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>המשפחות שלנו</title>
+<style>
+:root{
+  --bg:#f5f2ec;
+  --card:#ffffff;
+  --text:#20242a;
+  --muted:#6b7280;
+  --accent:#236f78;
+  --accent-dark:#17545b;
+  --border:rgba(32,36,42,.14);
+  --shadow:0 12px 30px rgba(0,0,0,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,"Noto Sans Hebrew",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+main{
+  max-width:920px;
+  margin:auto;
+  padding:40px 18px;
+}
+header{
+  text-align:center;
+  margin-bottom:24px;
+}
+h1{
+  margin:0;
+  font-size:clamp(2rem,5vw,3.2rem);
+}
+.subtitle{
+  color:var(--muted);
+  margin:10px 0 0;
+}
+.search-wrap{
+  margin:24px auto;
+  max-width:620px;
+}
+.search{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:14px 18px;
+  font:inherit;
+  background:#fff;
+  box-shadow:var(--shadow);
+}
+.search:focus{
+  outline:3px solid rgba(35,111,120,.18);
+  border-color:var(--accent);
+}
+.list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px 22px;
+  box-shadow:var(--shadow);
+  text-decoration:none;
+  color:inherit;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.item:hover,.item:focus-visible{
+  transform:translateY(-2px);
+  box-shadow:0 16px 36px rgba(0,0,0,.16);
+  outline:none;
+}
+.left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0;
+}
+.icon{font-size:2rem}
+.name{
+  font-size:1.2rem;
+  font-weight:700;
+}
+.open{
+  background:var(--accent);
+  color:#fff;
+  padding:9px 16px;
+  border-radius:999px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.item:hover .open{background:var(--accent-dark)}
+.empty{
+  display:none;
+  text-align:center;
+  color:var(--muted);
+  padding:28px 10px;
+}
+.count{
+  text-align:center;
+  color:var(--muted);
+  margin-bottom:14px;
+  font-size:.95rem;
+}
+footer{
+  text-align:center;
+  color:var(--muted);
+  margin-top:30px;
+  font-size:.9rem;
+}
+@media(max-width:560px){
+  main{padding:24px 12px}
+  .item{padding:15px}
+  .open{padding:8px 12px}
+  .icon{font-size:1.6rem}
+  .name{font-size:1.05rem}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>המשפחות שלנו</h1>
+    <p class="subtitle">חפשו או בחרו משפחה כדי לפתוח את הדף האינטראקטיבי</p>
+  </header>
+
+  <div class="search-wrap">
+    <input
+      id="searchInput"
+      class="search"
+      type="search"
+      placeholder="חיפוש לפי שם משפחה..."
+      autocomplete="off"
+      aria-label="חיפוש משפחה">
+  </div>
+
+  <div id="count" class="count"></div>
+
+  <section id="familyList" class="list">
+    <a class="item" href="./finkelstein/" data-name="משפחת פינקלשטיין פינקלשטיין finkelstein">
+      <div class="left">
+        <div class="icon" aria-hidden="true">👨‍👩‍👧‍👦</div>
+        <div class="name">משפחת פינקלשטיין</div>
+      </div>
+      <div class="open">פתח</div>
+    </a>
+
+    <a class="item" href="./margolis/" data-name="משפחת מרגוליס מרגוליס margolis">
+      <div class="left">
+        <div class="icon" aria-hidden="true">👨‍👩‍👧‍👦</div>
+        <div class="name">משפחת מרגוליס</div>
+      </div>
+      <div class="open">פתח</div>
+    </a>
+  </section>
+
+  <div id="emptyState" class="empty">לא נמצאה משפחה מתאימה.</div>
+
+  <footer>משפחות נוספות יתווספו בהמשך.</footer>
+</main>
+
+<script>
+const searchInput = document.getElementById("searchInput");
+const items = [...document.querySelectorAll(".item")];
+const emptyState = document.getElementById("emptyState");
+const count = document.getElementById("count");
+
+function normalize(text){
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[״"']/g,"")
+    .replace(/\s+/g," ");
+}
+
+function filterFamilies(){
+  const query = normalize(searchInput.value);
+  let visible = 0;
+
+  items.forEach(item => {
+    const haystack = normalize(item.dataset.name || item.textContent);
+    const match = !query || haystack.includes(query);
+    item.style.display = match ? "flex" : "none";
+    if(match) visible++;
+  });
+
+  emptyState.style.display = visible === 0 ? "block" : "none";
+  count.textContent = query
+    ? `נמצאו ${visible} משפחות`
+    : `${items.length} משפחות באתר`;
+}
+
+searchInput.addEventListener("input", filterFamilies);
+filterFamilies();
+</script>
+</body>
+</html>
