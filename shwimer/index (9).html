@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>המשפחה שלנו</title>
+<style>
+:root{--bg:#f4f1eb;--text:#20242a;--muted:#646b75;--accent:#236f78;--accent-dark:#17545b;--panel:rgba(255,255,255,.97);--border:rgba(32,36,42,.14);--shadow:0 18px 55px rgba(0,0,0,.18)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Hebrew",sans-serif;background:var(--bg);color:var(--text)}
+main{width:min(1180px,100%);margin:auto;padding:22px}
+h1{margin:0 0 5px;font-size:clamp(1.5rem,3vw,2.3rem)}
+.subtitle{margin:0 0 14px;color:var(--muted)}
+.photo{position:relative;overflow:hidden;border-radius:22px;background:#ddd;box-shadow:var(--shadow);line-height:0}
+.photo img{display:block;width:100%;height:auto}
+.marker{position:absolute;transform:translate(-50%,-50%);width:clamp(31px,4.2vw,46px);height:clamp(31px,4.2vw,46px);border-radius:50%;border:3px solid #fff;background:var(--accent);color:#fff;font:700 clamp(.9rem,2vw,1.15rem)/1 Arial;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 15px rgba(0,0,0,.38)}
+.marker:hover,.marker:focus-visible{background:var(--accent-dark);outline:none}
+.popover{position:absolute;z-index:20;display:none;width:min(310px,calc(100% - 24px));padding:15px;background:var(--panel);border:1px solid var(--border);border-radius:17px;box-shadow:var(--shadow);line-height:1.4}
+.popover.open{display:block}
+.popover h2{margin:0 0 5px}
+.popover p{margin:0;color:var(--muted)}
+.back{display:inline-block;margin-bottom:12px;color:var(--accent-dark);text-decoration:none;font-weight:700}
+.qa-section{margin-top:24px}
+.qa-section h2{margin:0 0 14px;font-size:1.45rem}
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.qa-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:16px;box-shadow:0 10px 28px rgba(0,0,0,.08)}
+.qa-card h3{margin:0 0 8px;font-size:1.05rem}
+.qa-card p{margin:0;color:var(--muted);line-height:1.6;white-space:pre-wrap}
+@media(max-width:620px){main{padding:10px}.photo{border-radius:14px}}
+</style>
+</head>
+<body>
+<main>
+<a class="back" href="../">← חזרה לכל המשפחות</a>
+<h1>המשפחה שלנו</h1>
+<p class="subtitle">לחצו על מספר כדי להכיר כל אחד ואחת.</p>
+<section class="photo" id="photo">
+<img src="family.jpg" alt="תמונה משפחתית">
+<button class="marker" type="button" data-id="1" style="left:45.2%;top:45.1%;">1</button>
+<aside class="popover" id="popover">
+<h2 id="personName"></h2>
+<p id="personDetails"></p>
+</aside>
+</section>
+<section class="qa-section" id="qaSection">
+<h2>קצת עלינו</h2>
+<div class="qa-grid" id="qaGrid"></div>
+</section>
+</main>
+<script>
+const people={"1":{"name":"צופיה","age":"10","role":"לומדת במורשה בנות, בחוג היפהופ","x":45.2,"y":45.1}};
+const qa={"years":"","love":"","wish":"","special":""};
+const photo=document.getElementById("photo");
+const pop=document.getElementById("popover");
+const personName=document.getElementById("personName");
+const personDetails=document.getElementById("personDetails");
+document.querySelectorAll(".marker").forEach(btn=>{
+  btn.addEventListener("click",e=>{
+    e.stopPropagation();
+    const p=people[btn.dataset.id];
+    personName.textContent=p.name||("אדם מספר "+btn.dataset.id);
+    personDetails.textContent=[p.age||"",p.role||""].filter(Boolean).join(" · ");
+    pop.classList.add("open");
+    const wrap=photo.getBoundingClientRect();
+    const mark=btn.getBoundingClientRect();
+    const width=Math.min(310,wrap.width-24);
+    let left=mark.left-wrap.left+mark.width/2-width/2;
+    left=Math.max(12,Math.min(left,wrap.width-width-12));
+    pop.style.width=width+"px";
+    pop.style.left=left+"px";
+    pop.style.top=(mark.top-wrap.top+mark.height+10)+"px";
+  });
+});
+photo.addEventListener("click",()=>pop.classList.remove("open"));
+pop.addEventListener("click",e=>e.stopPropagation());
+
+const qaItems=[
+  ["כמה שנים אתם בקהילה?",qa.years],
+  ["מה אתם הכי אוהבים בקהילה?",qa.love],
+  ["מה אתם מאחלים לקהילה?",qa.wish],
+  ["משהו מיוחד על המשפחה",qa.special]
+].filter(item=>item[1]);
+
+const qaSection=document.getElementById("qaSection");
+const qaGrid=document.getElementById("qaGrid");
+if(!qaItems.length){
+  qaSection.style.display="none";
+}else{
+  qaItems.forEach(([question,answer])=>{
+    const card=document.createElement("article");
+    card.className="qa-card";
+    const h=document.createElement("h3");
+    h.textContent=question;
+    const p=document.createElement("p");
+    p.textContent=answer;
+    card.append(h,p);
+    qaGrid.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>
